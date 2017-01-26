@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+	x:Class="SequenceEditor.Window1" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
+	Title="SequenceEditor" xmlns:avalonEdit="clr-namespace:ICSharpCode.AvalonEdit;assembly=ICSharpCode.AvalonEdit"
+	Width="724"
+	Height="516">
+	<DockPanel		>
+		<StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+		<Button 
+			Name="btnProcessAllFiles"
+		Click="BtnProcessAllFiles_Click">
+		Load stuff
+		</Button>
+		<Button 
+			Name="btnFoldFiles"
+		Click="BtnFoldFiles_Click">
+		Fold Again
+		</Button>
+		
+		<Button 
+			Name="btnAddHighlighting"
+		Click="BtnAddHighlighting_Click">
+		Add highlighting
+		</Button>
+			</StackPanel>
+		<avalonDock:DockingManager
+			x:Name="dockingManager">
+			<avalonDock:DockingManager.Resources>
+        <Style TargetType="{x:Type avalonDock:LayoutDocumentTabItem}">
+            <Setter Property="Width" Value="80" />                   
+        </Style>
+    </avalonDock:DockingManager.Resources>
+			<avalonDock:LayoutRoot>
+				<avalonDock:LayoutPanel
+					Orientation="Horizontal">
+					<avalonDock:LayoutDocumentPaneGroup x:Name="docPane" >
+						<avalonDock:LayoutDocumentPane />
+						
+					</avalonDock:LayoutDocumentPaneGroup>
+					
+					
+				</avalonDock:LayoutPanel>
+				
+			</avalonDock:LayoutRoot>
+		</avalonDock:DockingManager>
+	</DockPanel>
+</Window>
