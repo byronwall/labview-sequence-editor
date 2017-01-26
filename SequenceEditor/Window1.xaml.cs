@@ -3,14 +3,16 @@
  * User: bwall
  * Date: 1/25/2017
  * Time: 3:59 PM
- * 
+ *
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -23,6 +25,7 @@ using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using ICSharpCode.AvalonEdit.Rendering;
 using Xceed.Wpf.AvalonDock.Layout;
 
 namespace SequenceEditor
@@ -34,6 +37,10 @@ namespace SequenceEditor
 	{
 		public List<EditorInstance> editors = new List<EditorInstance>();
 		public FoldingManager foldingManaer;
+		
+		//files that can be created
+		SequenceFile sequenceFile = null;
+		ConfigFile variableFile = null;
 		
 		public Window1()
 		{
@@ -49,132 +56,106 @@ namespace SequenceEditor
 			//create some stuff
 			Debug.Print("creating the panes");
 			
-			var filesToLoad = new List<string>();
-			filesToLoad.Add("sequences.ini");
-			filesToLoad.Add("variables.ini");
+			//remove anything open before
+			docPane.Children.Clear();
 			
-			foreach (string file in filesToLoad) {
-				//create a new panel
-				
+			List<ConfigFile> filesToLoad = new List<ConfigFile>();
+			
+			//wire up the global variables
+			sequenceFile = new SequenceFile("sequences.ini");
+			
+			filesToLoad.Add(sequenceFile);
+			filesToLoad.Add(new ConfigFile("variables.ini"));
+			//filesToLoad.Add(new ConfigFile("safety.ini"));
+			//filesToLoad.Add(new ConfigFile("pid.ini"));
+			
+			//create the highlighting
+			using (StreamReader sr = new StreamReader("LabView.xshd")) {
+				using (XmlTextReader reader = new XmlTextReader(sr)) {
+					highlightingDefinition = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+				}
+			}
+			
+			foreach (ConfigFile file in filesToLoad) {
+				//create a new panel for Avalon Dock
 				LayoutDocumentPane ldp = new LayoutDocumentPane();
 				LayoutDocument ld = new LayoutDocument();
 				
-				ld.Title = file;
+				ld.Title = Path.GetFileName(file.originalPath);
+				ld.CanClose = false;
 				
-				var editor = new EditorInstance();
+				//set up the text editor details and add highlighting for the loaded file
+				var editor = new EditorInstance(file);
 				editors.Add(editor);
 				
 				var textEditor = editor.txtEditor;
-				textEditor.ShowLineNumbers = true;				
-				textEditor.Load(file);
+				textEditor.ShowLineNumbers = true;
+				textEditor.Load(file.originalPath);
 				textEditor.FontFamily = new FontFamily("Consolas");
 				textEditor.FontSize = 12;
 				
-				ld.Content = textEditor;
-				ld.CanClose = false;
+				//this wires the text change back to the main object
+				textEditor.TextChanged += (object a, EventArgs ee) => {file.fileContents = textEditor.Text;};
 				
-				ldp.Children.Add(ld);				
+				//TODO make these colors file type dependent
+				addHighlightingRule(file.labels, Colors.White, Colors.Brown);
+				
+				//add text editor to the Dock
+				ld.Content = textEditor;
+				ldp.Children.Add(ld);
 				docPane.Children.Add(ldp);
 			}
 				
 		}
+		
+		private void addHighlightingRule(IEnumerable<string> labels, Color colorFore, Color colorBack)
+		{
+			
+			var _HighlightingRule = new HighlightingRule();
+			_HighlightingRule.Color = new HighlightingColor {
+				Foreground = new CustomizedBrush(colorFore),
+				Background = new CustomizedBrush(colorBack)
+			};
+
+			String[] wordList = labels.ToArray(); // Your own logic
+			String regex = String.Format(@"\b({0})\w*\b", String.Join("|", wordList));
+			_HighlightingRule.Regex = new Regex(regex);
+					
+			highlightingDefinition.MainRuleSet.Rules.Add(_HighlightingRule);
+		}
+		
 		void BtnFoldFiles_Click(object sender, RoutedEventArgs e)
 		{
 			foreach (var editor in editors) {
 				editor.foldStrat.UpdateFoldings(editor.foldMgr, editor.txtEditor.Document);
 			}
 		}
-		void BtnAddHighlighting_Click(object sender, RoutedEventArgs e)
-		{
-			foreach (var editor in editors) {	
-				using (StreamReader sr = new StreamReader("LabView.xshd")) {
-					using (XmlTextReader reader = new XmlTextReader(sr)) {									
-						editor.txtEditor.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
-					}
-				}
-			}
-		}
-	}
-	
-	public class EditorInstance
-	{
-		public TextEditor txtEditor;
-		public AbstractFoldingStrategy foldStrat;
-		public FoldingManager foldMgr;
-		
-		public EditorInstance()
-		{
-			this.txtEditor = new TextEditor();
-			this.foldMgr = FoldingManager.Install(txtEditor.TextArea);
-			this.foldStrat = new IniFoldingStrategy();
-		}
-			
-	}
-	
-	public class IniFoldingStrategy : AbstractFoldingStrategy
-	{
-		
-		/// <summary>
-		/// Creates a new BraceFoldingStrategy.
-		/// </summary>
-		public IniFoldingStrategy()
-		{
 
+		IHighlightingDefinition highlightingDefinition;
+
+		void BtnAddHighlighting_Click(object sender, RoutedEventArgs e)
+		{			
+			foreach (var editor in editors) {
+						
+				editor.txtEditor.SyntaxHighlighting = highlightingDefinition;
+			}
 		}
-		
-		/// <summary>
-		/// Create <see cref="NewFolding"/>s for the specified document.
-		/// </summary>
-		public override IEnumerable<NewFolding> CreateNewFoldings(TextDocument document, out int firstErrorOffset)
+		void BtnSequenceSwap_Click(object sender, RoutedEventArgs e)
 		{
-			firstErrorOffset = -1;
-			return CreateNewFoldings(document);
-		}
-		
-		/// <summary>
-		/// Create <see cref="NewFolding"/>s for the specified document.
-		/// </summary>
-		public IEnumerable<NewFolding> CreateNewFoldings(ITextSource document)
-		{
-			List<NewFolding> newFoldings = new List<NewFolding>();			
-			
-			char openingBrace = ']';
-			char closingBrace = '[';
-			
-			int? startOffset = null;
-			
-			for (int i = 0; i < document.TextLength; i++) {			
-				
-				char c = document.GetCharAt(i);
-				
-				if (c == openingBrace) {
-					startOffset = i + 1;
-				} else if (c == closingBrace && startOffset.HasValue) {
-					
-					//look backward from here to find the last new line
-					int j = i - 1;
-					while (j > 0) {
-						if (document.GetCharAt(j) == '\n') {
-							//not allowed to fold between \r and \n so catch that
-							if (document.GetCharAt(j - 1) == '\r') {
-								j -= 1;
-							}
-							
-							newFoldings.Add(new NewFolding(startOffset.Value, j));
-							startOffset = null;
-							
-							break;
-						}
-					}					
-				} 
+			if (sequenceFile.isRenderedWithLineNumbers) {
+				sequenceFile.ConvertFileToLabels();
+			} else {
+				sequenceFile.ConvertFileToLineNumbers();
 			}
 			
-			//get the last one
-			if (startOffset.HasValue) {
-				newFoldings.Add(new NewFolding(startOffset.Value, document.TextLength - 1));
+			foreach (var editor in editors) {
+				editor.UpdateText();
 			}
 			
-			return newFoldings;
+		}
+		void BtnSaveSeqFile_Click(object sender, RoutedEventArgs e)
+		{
+			sequenceFile.SaveToFile("newSeq.ini");
 		}
 	}
 }
