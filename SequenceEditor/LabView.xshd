@@ -1,0 +1,82 @@
+<SyntaxDefinition name="LabView" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">	
+	
+	<Color name="Comment" foreground="Green" exampleText="; comment" />
+	
+	<Color name="Sequence" foreground="DarkBlue" fontWeight="bold" exampleText="set sequence start" />
+	
+	<Color name="Timer" foreground="Yellow" background="Gray" fontWeight="bold" exampleText="set sequence start" />
+	
+	<Color name="Goto" foreground="Red" fontWeight="bold" exampleText="set sequence start" />
+	<Color name="GotoLabel" foreground="White" background="Red" exampleText=":line1:" />
+	<Color name="Bool" foreground="Orange" exampleText="set sequence start" />
+	<Color name="Conditional" foreground="Green" exampleText="set sequence start" />
+	
+	<Color name="NumberLiteral" foreground="DarkBlue" exampleText="3.1415f" />
+	<Color name="Header" foreground="Green" fontWeight="bold" exampleText="#region Title" />
+	
+	<Color name="String" foreground="Blue" exampleText="string text = &quot;Hello, World!&quot;" />	
+	
+	<!-- This is the main ruleset. -->
+	<RuleSet>
+
+		<Span color="Comment">
+			<Begin>;</Begin>
+		</Span>
+		
+		<Rule color="GotoLabel">
+			\|.*?\|
+		</Rule>
+		
+		<Span color="Header">
+			<Begin>\[</Begin>
+			<End>\]</End>		
+		</Span>
+
+		<Span color="String">
+			<Begin>"</Begin>
+			<End>"</End>
+		</Span>
+		
+		<Keywords color="Sequence">
+			<Word>set</Word>
+			<Word>sequence</Word>
+			<Word>call</Word>
+			<Word>wait</Word>
+			<Word>end</Word>
+			<Word>start</Word>
+			<Word>stop</Word>
+		</Keywords>
+	
+		<Keywords color="Timer">
+			<Word>timer</Word>
+		</Keywords>
+	
+		<Keywords color="Goto">
+			<Word>goto</Word>
+		</Keywords>
+		
+		<!--color conditionals?
+
+		<Keywords color="Bool">
+			<Word>and</Word>
+			<Word>or</Word>
+		</Keywords>
+
+		-->
+		
+		<Keywords color="Conditional">
+			<Word>if</Word>
+		</Keywords>
+	
+			<!-- Digits -->
+		<Rule color="NumberLiteral">
+			\b0[xX][0-9a-fA-F]+  # hex number
+		|	
+			(	\b\d+(\.[0-9]+)?   #number with optional floating point
+			|	\.[0-9]+           #or just starting with floating point
+			)
+			([eE][+-]?[0-9]+)? # optional exponent
+		</Rule>
+	
+	</RuleSet>
+</SyntaxDefinition>

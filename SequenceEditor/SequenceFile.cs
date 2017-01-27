@@ -31,11 +31,22 @@ namespace SequenceEditor
 {
 	public class SequenceFile : ConfigFile
 	{
+		
+		static Regex gotoSpotter = new Regex(@"goto (\d+)");
+		static Regex labelSpotter = new Regex(@"^(\|.*?\|) ");
+		static Regex gotoLabelSpotter = new Regex(@"goto (\|.*?\|)");
+		
 		public bool isRenderedWithLineNumbers = true;
 
 		public SequenceFile(string path)
 			: base(path)
 		{
+		}
+		
+		public SequenceFile(string path, Color fore, Color back)
+			: base(path, fore, back)
+		{
+			
 		}
 
 		static string ProcessSectionFromLinesToLabels(List<string> currentSection)
@@ -43,36 +54,36 @@ namespace SequenceEditor
 			StringBuilder sectionBuilder = new StringBuilder();
 			
 			List<int> commentsBeforeLine = new List<int>();
-			int commentCount = 0;
+			
 			Dictionary<int, int> execLines = new Dictionary<int, int>();
-			Regex lineSplitter = new Regex(@"^[^;].*?=\s*(.*)");
+			
 			List<string> newLines = new List<string>();
 			for (int i = 0; i < currentSection.Count; i++) {
 				var originalLine = currentSection[i];
 				string newline = originalLine;
 				if (lineSplitter.IsMatch(originalLine)) {
 					var match = lineSplitter.Match(originalLine);
-					newline = match.Groups[1].Value;
+					newline = match.Groups["value"].Value;
 					execLines.Add(execLines.Count + 1, i);
 				}
 				newLines.Add(newline);
 			}
 			for (int i = 0; i < newLines.Count; i++) {
 				var newline = newLines[i];
-				Regex gotoSpotter = new Regex(@"goto (\d+)");
+				
 				if (gotoSpotter.IsMatch(newline)) {
 					//get the line number
 					foreach (Match match in gotoSpotter.Matches(newline)) {
 						int lineNum = int.Parse(match.Groups[1].Value);
 						//check if the line has a label
 						int lineIndex = execLines[lineNum];
-						if (!newLines[lineIndex].StartsWith(":")) {
-							newLines[lineIndex] = ":" + lineNum + ": " + newLines[lineIndex];
+						if (!newLines[lineIndex].StartsWith("|")) {
+							newLines[lineIndex] = "|" + lineNum + "| " + newLines[lineIndex];
 							//in case the goto was to the current line
 							newline = newLines[i];
 						}
 					}
-					newline = gotoSpotter.Replace(newline, "goto :$1:");
+					newline = gotoSpotter.Replace(newline, "goto |$1|");
 					newLines[i] = newline;
 				}
 			}
@@ -87,7 +98,7 @@ namespace SequenceEditor
 			StringBuilder newFileBuilder = new StringBuilder();
 			//run through a line at a time
 			
-			List<string> currentSection = new List<string>();			
+			List<string> currentSection = new List<string>();
 			using (StringReader sr = new StringReader(this.fileContents)) {
 				string line;
 				
@@ -97,8 +108,8 @@ namespace SequenceEditor
 					if (regHeader.IsMatch(line)) {
 						//process the previous section
 						if (!isFirstRun) {
-							//process the previous section since this is a new one							
-							newFileBuilder.Append(ProcessSectionFromLinesToLabels(currentSection));							
+							//process the previous section since this is a new one
+							newFileBuilder.Append(ProcessSectionFromLinesToLabels(currentSection));
 							
 						}
 						//start of a new section w/ new header
@@ -120,7 +131,7 @@ namespace SequenceEditor
 			StringBuilder sectionBuilder = new StringBuilder();
 			
 			Dictionary<string, int> labelsAndLines = new Dictionary<string, int>();
-			Regex labelSpotter = new Regex(@"^(:.*?:) ");
+			
 			List<string> newLines = new List<string>();
 			int commentCount = 0;
 			for (int lineNum = 0; lineNum < currentSection.Count; lineNum++) {
@@ -142,7 +153,7 @@ namespace SequenceEditor
 				if (newline.StartsWith(";")) {
 					commentCount++;
 				}
-				Regex gotoLabelSpotter = new Regex(@"goto (:.*?:)");
+				
 				if (gotoLabelSpotter.IsMatch(newline)) {
 					//get the line number
 					while (gotoLabelSpotter.IsMatch(newline)) {
@@ -177,19 +188,29 @@ namespace SequenceEditor
 						if (!isFirstRun) {
 							//go through the lines and remove the line number
 							//build a list of labels->lines first
-							newFileBuilder.Append(ProcessSectionFromLabelsToLineNum(currentSection));							
+							newFileBuilder.Append(ProcessSectionFromLabelsToLineNum(currentSection));
 						}
 						//start of a new section w/ new header
-						currentSection = new List<string>();						
+						currentSection = new List<string>();
 					}
 					currentSection.Add(line);
 					isFirstRun = false;
 				}
 			}
-			newFileBuilder.Append(ProcessSectionFromLabelsToLineNum(currentSection));							
+			newFileBuilder.Append(ProcessSectionFromLabelsToLineNum(currentSection));
 			
 			this.isRenderedWithLineNumbers = true;
 			this.fileContents = newFileBuilder.ToString();
+		}
+		
+		public override void SaveToFile()
+		{
+			//convert to the correct type
+			if (!this.isRenderedWithLineNumbers) {
+				this.ConvertFileToLineNumbers();
+			}
+			
+			base.SaveToFile();
 		}
 	}
 }
