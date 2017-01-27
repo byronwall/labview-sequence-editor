@@ -6,11 +6,14 @@
 			<Button Content="Flip Seq" Name="btnFlipSeq" Click="BtnFlipSeq_Click"></Button>
 			<Button Content="Toggle Grid" Name="btnToGrid" Click="BtnToGrid_Click"></Button>
 			<Separator></Separator>
-			<Button Content="Collapse All" Name="btnCollapse" Click="BtnCollapse_Click"></Button>
-			<Button Content="Expand All" Name="btnExpand" Click="BtnExpand_Click"></Button>
+			<Button Content="Collapse" Name="btnCollapse" Click="BtnCollapse_Click"></Button>
+			<Button Content="Expand" Name="btnExpand" Click="BtnExpand_Click"></Button>
 			<Separator></Separator>
+			<Button Content="To Clip" Name="btnToClipboard" Click="BtnToClipboard_Click"></Button>
+			<Button Content="From Clip" Name="btnFromClipboard" Click="BtnFromClipboard_Click"></Button>
+			<Separator Name="sepClip"></Separator>
 			<Button Content="Save" Name="btnSave" Click="BtnSave_Click"></Button>
-			<Button Content="Revert Changes" Name="btnRevert" Click="BtnRevert_Click"></Button>
+			<Button Content="Revert" Name="btnRevert" Click="BtnRevert_Click"></Button>
 		</ToolBar>
 	</DockPanel>
 </UserControl>

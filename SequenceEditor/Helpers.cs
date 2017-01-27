@@ -8,7 +8,11 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Windows.Forms;
 namespace SequenceEditor
 {
 	public static class Helpers
@@ -19,20 +23,49 @@ namespace SequenceEditor
 			foreach (T s in list1) {
 				if (diffCounter.ContainsKey(s)) {
 					diffCounter[s]++;
-				}
-				else {
+				} else {
 					diffCounter.Add(s, 1);
 				}
 			}
 			foreach (T s in list2) {
 				if (diffCounter.ContainsKey(s)) {
 					diffCounter[s]--;
-				}
-				else {
+				} else {
 					return false;
 				}
 			}
 			return diffCounter.Values.All(c => c == 0);
+		}
+		
+		public static IEnumerable<string> ReadClipboardAsLines()
+		{
+			string clipboardData = Clipboard.GetText();
+			
+			string line;
+			using (var reader = new StringReader(clipboardData)) {
+				while ((line = reader.ReadLine()) != null) {
+					yield return line;				       		
+				}
+			}
+		}
+		
+		public static string ToDelim(this DataTable table, string delim)
+		{
+			var result = new StringBuilder();
+			
+			for (int i = 0; i < table.Columns.Count; i++) {
+				result.Append(table.Columns[i].ColumnName);
+				result.Append(i == table.Columns.Count - 1 ? "\n" : delim);
+			}
+
+			foreach (DataRow row in table.Rows) {
+				for (int i = 0; i < table.Columns.Count; i++) {
+					result.Append(row[i].ToString());
+					result.Append(i == table.Columns.Count - 1 ? "\n" : delim);
+				}
+			}
+
+			return result.ToString();
 		}
 	}
 }

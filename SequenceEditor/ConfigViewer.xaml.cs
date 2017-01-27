@@ -7,22 +7,16 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Folding;
-using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
 
 namespace SequenceEditor
@@ -70,7 +64,9 @@ namespace SequenceEditor
 			//remove buttons based on type
 			if (file is SequenceFile) {
 				toolBtns.Items.Remove(btnToGrid);
-				
+				toolBtns.Items.Remove(btnFromClipboard);
+				toolBtns.Items.Remove(btnToClipboard);
+				toolBtns.Items.Remove(sepClip);
 			} else {
 				toolBtns.Items.Remove(btnFlipSeq);
 			}			
@@ -150,24 +146,33 @@ namespace SequenceEditor
 				
 			pnlMain.Children.Add(textEditor);							
 		}
-		void BtnToGrid_Click(object sender, RoutedEventArgs e)
-		{
-			//this will convert to a data grid
-			if (isEditorVisible) {			
-				DataTable tbl = file.ConvertToTable();
-				dg.ItemsSource = tbl.AsDataView();
 
+		void ToggleGridDisplay(bool shouldEditorBeVisible)
+		{
+			if (isEditorVisible == shouldEditorBeVisible) {
+				return;
+			}
+			
+			//this will convert to a data grid
+			if (isEditorVisible) {
+				DataTable tbl = file.UpdateDataTable();
+				dg.ItemsSource = tbl.AsDataView();
 				pnlMain.Children.Remove(textEditor);
-				pnlMain.Children.Add(dg);	
+				pnlMain.Children.Add(dg);
 			} else {
 				file.ConvertToFlatFromTable();
 				UpdateText();
-				
 				pnlMain.Children.Add(textEditor);
-				pnlMain.Children.Remove(dg);	
+				pnlMain.Children.Remove(dg);
 			}
 			
 			isEditorVisible = !isEditorVisible;
+		}
+
+		void BtnToGrid_Click(object sender, RoutedEventArgs e)
+		{
+			ToggleGridDisplay(!isEditorVisible);
+			
 		}
 		
 		void SetFoldStatusForAll(bool areFolded)
@@ -226,6 +231,17 @@ namespace SequenceEditor
 					textEditor.ScrollToVerticalOffset(offset);
 				}
 			}
+		}
+		void BtnToClipboard_Click(object sender, RoutedEventArgs e)
+		{
+			file.PutDataIntoClipboard();
+		}
+		void BtnFromClipboard_Click(object sender, RoutedEventArgs e)
+		{
+			file.UpdateDataTableFromExcel();
+			
+			//show the grid
+			ToggleGridDisplay(false);
 		}
 	}
 }

@@ -10,25 +10,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Xml;
-using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Highlighting.Xshd;
-using ICSharpCode.AvalonEdit.Rendering;
-using Xceed.Wpf.AvalonDock.Layout;
 namespace SequenceEditor
 {
 	public class ConfigFile
@@ -137,7 +125,7 @@ namespace SequenceEditor
 		}
 
 		DataTable dataTable;
-		public DataTable ConvertToTable()
+		public DataTable UpdateDataTable()
 		{
 			List<List<string>> sections = new List<List<string>>();
 			
@@ -246,6 +234,31 @@ namespace SequenceEditor
 		{
 			this.fileContents = this._originalContents;
 		}
-	}	
+		
+		public void UpdateDataTableFromExcel()
+		{
+			dataTable = new DataTable();			
+			var clipboardReader = Helpers.ReadClipboardAsLines();
+			//this assume the first record is filled with the column names
+			var headers = clipboardReader.First().Split('\t');
+			foreach (var header in headers) {
+				dataTable.Columns.Add(header);
+			}
+
+			var records = clipboardReader.Skip(1);
+			foreach (var record in records) {
+				dataTable.Rows.Add(record.Split('\t'));
+			}
+			
+			//deal with the new DataTable
+			ConvertToFlatFromTable();
+		}
+		public void PutDataIntoClipboard()
+		{
+			DataTable table = UpdateDataTable();
+			string tabletext = table.ToDelim("\t");
+			Clipboard.SetText(tabletext, TextDataFormat.Text);
+		}
+	}
 }
 

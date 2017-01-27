@@ -8,25 +8,15 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Xml;
-using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
-using ICSharpCode.AvalonEdit.Rendering;
 using Xceed.Wpf.AvalonDock.Layout;
 
 namespace SequenceEditor
@@ -120,6 +110,17 @@ namespace SequenceEditor
 		void MenuItem_Click(object sender, RoutedEventArgs e)
 		{
 			Close();
+		}
+		void BtnAbout_Click(object sender, RoutedEventArgs e)
+		{
+			string about = @"LabView Sequence File Manager
+Initial Version Created Jan 2017
+
+-- Contact --
+Byron for questions about the program
+Douwe for questions about the LabView side";
+			
+			MessageBox.Show(about, "LabView Sequence File Manager");
 		}
 	}
 }
