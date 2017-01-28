@@ -102,23 +102,26 @@ namespace SequenceEditor
 				textEditor.TextArea.TextView.Redraw();
 			};
 			
+			//this handles the CTRL+click behavior
 			textEditor.TextArea.TextView.MouseDown += (object ssss, MouseButtonEventArgs eeee) => {
 				if (eeee.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.Control) {
+					//get the mouse position
 					var position = textEditor.GetPositionFromPoint(eeee.GetPosition(textEditor));
 					if (position == null) {
 						return;
 					}
+					
 					int offset = textEditor.Document.GetOffset(position.Value.Location);
         			
-					//go each way from offset to find a whitespace
-        			
+					//go each way from offset to find a whitespace or comma        			
 					int origOffset = offset;
         			
 					int startOffset = 0;
 					int endOffset = textEditor.Document.TextLength;
         			
 					while (offset > 0) {
-						if (Char.IsWhiteSpace(textEditor.Document.GetCharAt(offset))) {
+						var ch = textEditor.Document.GetCharAt(offset);
+						if (Char.IsWhiteSpace(ch) || ch == ',') {
 							startOffset = offset + 1;
 							break;
 						}
@@ -126,7 +129,8 @@ namespace SequenceEditor
 					}
 					offset = origOffset;
 					while (offset < textEditor.Document.TextLength) {
-						if (Char.IsWhiteSpace(textEditor.Document.GetCharAt(offset))) {
+						var ch = textEditor.Document.GetCharAt(offset);
+						if (Char.IsWhiteSpace(ch) || ch == ',') {
 							endOffset = offset;
 							break;
 						}

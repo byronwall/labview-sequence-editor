@@ -4,6 +4,10 @@
 	
 	<Color name="Sequence" foreground="DarkBlue" fontWeight="bold" exampleText="set sequence start" />
 	
+	<Color name="Variables" foreground="DarkGreen" fontWeight="bold" exampleText="set sequence start" />
+	<Color name="Safety" foreground="DarkGreen" fontWeight="bold" exampleText="set sequence start" />
+	<Color name="PID" foreground="DarkGreen" fontWeight="bold" exampleText="set sequence start" />
+	
 	<Color name="Timer" foreground="Yellow" background="Gray" fontWeight="bold" exampleText="set sequence start" />
 	
 	<Color name="Goto" foreground="Red" fontWeight="bold" exampleText="set sequence start" />
@@ -46,6 +50,43 @@
 			<Word>start</Word>
 			<Word>stop</Word>
 		</Keywords>
+		
+		<Keywords color="Variables">
+			<Word>type</Word>
+			<Word>math</Word>
+			<Word>daq_ch</Word>
+			<Word>daq_io</Word>
+			<Word>daq_cal</Word>
+			<Word>filter</Word>
+			<Word>mb_ch</Word>
+			<Word>mb_io</Word>
+			<Word>log</Word>
+		</Keywords>
+		
+		
+		<Keywords color="PID">
+			
+		
+		
+		<Word>PV_name</Word>
+<Word>SP_name</Word>
+<Word>CO_name</Word>
+<Word>Kc</Word>
+<Word>Ti</Word>
+<Word>Td</Word>
+<Word>COmin</Word>
+<Word>COmax</Word>
+			
+			</Keywords>
+
+		
+		<Keywords color="Safety">
+			<Word>delay</Word>
+			<Word>limits</Word>
+			<Word>sequences</Word>
+		</Keywords>
+
+
 	
 		<Keywords color="Timer">
 			<Word>timer</Word>

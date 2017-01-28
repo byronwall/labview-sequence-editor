@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Xml;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Xceed.Wpf.AvalonDock.Layout;
 
 namespace SequenceEditor
@@ -29,6 +30,8 @@ namespace SequenceEditor
 		//files that can be created
 		SequenceFile sequenceFile = null;
 		ConfigFile variableFile = null;
+		
+		string workingFolderPath = "";
 		
 		public static List<ConfigViewer> viewers = new List<ConfigViewer>();
 		
@@ -48,6 +51,13 @@ namespace SequenceEditor
 
 		void BtnProcessAllFiles_Click(object sender, RoutedEventArgs e)
 		{
+			//get a folder to look for files
+			var dialog = new CommonOpenFileDialog();
+			dialog.IsFolderPicker = true;
+			CommonFileDialogResult result = dialog.ShowDialog();
+			
+			workingFolderPath = dialog.FileName;
+			
 			viewers = new List<ConfigViewer>();
 			
 			//remove anything open before
@@ -56,13 +66,17 @@ namespace SequenceEditor
 			List<ConfigFile> filesToLoad = new List<ConfigFile>();
 			
 			//wire up the global variables
-			sequenceFile = new SequenceFile("sequences.ini", Colors.White, Colors.Black);
-			variableFile = new ConfigFile("variables.ini");
+			sequenceFile = new SequenceFile(Path.Combine(workingFolderPath, "sequences.ini"), Colors.White, Colors.Black);
+			variableFile = new ConfigFile(Path.Combine(workingFolderPath, "variables.ini"));
 			
 			filesToLoad.Add(sequenceFile);			
 			filesToLoad.Add(variableFile);
 			
-			string[] otherFiles = { "safety.ini", "pid.ini" };			
+			string[] otherFiles = { 
+				Path.Combine(workingFolderPath, "safety.ini")
+					, Path.Combine(workingFolderPath, "pid.ini")
+			};
+			
 			foreach (var otherFile in otherFiles) {
 				if (File.Exists(otherFile)) {			
 					filesToLoad.Add(new ConfigFile(otherFile));

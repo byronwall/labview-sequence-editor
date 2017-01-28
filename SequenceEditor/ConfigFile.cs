@@ -66,6 +66,8 @@ namespace SequenceEditor
 		{
 			this.foreGround = foreGround;
 			this.backGround = backGround;
+			
+			UpdateHighlighter();
 		}
 
 		
@@ -78,10 +80,7 @@ namespace SequenceEditor
 			
 			//create the highlighting rule -- will be held by reference in general rules
 			_HighlightingRule = new HighlightingRule();
-			_HighlightingRule.Color = new HighlightingColor {
-				Foreground = new CustomizedBrush(foreGround),
-				Background = new CustomizedBrush(backGround)
-			};
+			
 			
 			Window1.highlightingDefinition.MainRuleSet.Rules.Add(_HighlightingRule);
 			UpdateHighlighter();		
@@ -89,6 +88,11 @@ namespace SequenceEditor
 		
 		public void UpdateHighlighter()
 		{
+			_HighlightingRule.Color = new HighlightingColor {
+				Foreground = new CustomizedBrush(foreGround),
+				Background = new CustomizedBrush(backGround)
+			};
+			
 			String[] wordList = labels.ToArray(); // Your own logic
 			String regex = String.Format(@"\b({0})\w*\b", String.Join("|", wordList));
 			_HighlightingRule.Regex = new Regex(regex);
