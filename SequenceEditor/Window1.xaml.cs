@@ -58,6 +58,8 @@ namespace SequenceEditor
 			
 			workingFolderPath = dialog.FileName;
 			
+			Directory.SetCurrentDirectory(workingFolderPath);
+			
 			viewers = new List<ConfigViewer>();
 			
 			//remove anything open before
