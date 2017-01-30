@@ -27,7 +27,7 @@ namespace SequenceEditor
 	public partial class ConfigViewer : UserControl
 	{
 		
-		DataGrid dg;
+		DataGrid dataGrid;
 		ConfigFile file;
 		
 		TextEditor textEditor;
@@ -45,9 +45,9 @@ namespace SequenceEditor
 		{
 			InitializeComponent();
 			
-			dg = new DataGrid();
-			dg.CanUserAddRows = false;
-			dg.CanUserDeleteRows = false;
+			dataGrid = new DataGrid();
+			dataGrid.CanUserAddRows = false;
+			dataGrid.CanUserDeleteRows = false;
 		}
 
 		void UpdateFoldingOffsets()
@@ -160,14 +160,14 @@ namespace SequenceEditor
 			//this will convert to a data grid
 			if (isEditorVisible) {
 				DataTable tbl = file.UpdateDataTable();
-				dg.ItemsSource = tbl.AsDataView();
+				dataGrid.ItemsSource = tbl.AsDataView();
 				pnlMain.Children.Remove(textEditor);
-				pnlMain.Children.Add(dg);
+				pnlMain.Children.Add(dataGrid);
 			} else {
 				file.ConvertToFlatFromTable();
 				UpdateText();
 				pnlMain.Children.Add(textEditor);
-				pnlMain.Children.Remove(dg);
+				pnlMain.Children.Remove(dataGrid);
 			}
 			
 			isEditorVisible = !isEditorVisible;
@@ -245,7 +245,10 @@ namespace SequenceEditor
 			file.UpdateDataTableFromExcel();
 			
 			//show the grid
+			ToggleGridDisplay(true);
 			ToggleGridDisplay(false);
+			
+			
 		}
 	}
 }
