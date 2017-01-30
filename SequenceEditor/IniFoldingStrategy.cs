@@ -78,7 +78,10 @@ namespace SequenceEditor
 			}
 			//get the last one
 			if (startOffset.HasValue) {
-				newFoldings.Add(new NewFolding(startOffset.Value, document.TextLength - 2));
+				int endOffset = document.TextLength - 2;
+				if (endOffset > startOffset.Value) {
+					newFoldings.Add(new NewFolding(startOffset.Value, endOffset));
+				}
 			}
 			return newFoldings;
 		}
