@@ -104,6 +104,7 @@ namespace SequenceEditor
 				//create a tool pane with the labels
 				LayoutAnchorable toolWindow = new LayoutAnchorable();
 				toolWindow.Title = Path.GetFileNameWithoutExtension(file.originalPath);
+				toolWindow.CanClose = false;
 				
 				//create teh ListBox to store labels
 				ListBox boxOfLabels = new ListBox();
