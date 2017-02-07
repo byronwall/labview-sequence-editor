@@ -58,6 +58,7 @@ namespace SequenceEditor
 			int? startOffset = null;
 			for (int i = 0; i < document.TextLength; i++) {
 				char c = document.GetCharAt(i);
+				
 				if (c == openingBrace) {
 					startOffset = i + 1;
 				} else if (c == closingBrace && startOffset.HasValue) {
@@ -73,6 +74,7 @@ namespace SequenceEditor
 							startOffset = null;
 							break;
 						}
+						j-=1;
 					}
 				}
 			}
