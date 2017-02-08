@@ -93,7 +93,9 @@ namespace SequenceEditor
 				Background = new CustomizedBrush(backGround)
 			};
 			
-			String[] wordList = labels.OrderByDescending(c=>c.Length).ToArray(); // Your own logic
+			//the sort here is to ensure that the longest words are in the list first
+			//this ensures that subsequent labels that might be a subset of the longer ones do not preempt highligthing the full label
+			String[] wordList = labels.OrderByDescending(c=>c.Length).ToArray();
 			String regex = String.Format(@"\b({0})\w*\b", String.Join("|", wordList));
 			_HighlightingRule.Regex = new Regex(regex);
 		}
