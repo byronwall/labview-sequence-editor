@@ -48,6 +48,12 @@ namespace SequenceEditor
 			dataGrid = new DataGrid();
 			dataGrid.CanUserAddRows = false;
 			dataGrid.CanUserDeleteRows = false;
+			
+			dataGrid.AutoGeneratingColumn += (object sender, DataGridAutoGeneratingColumnEventArgs e) => {
+				if(e.PropertyName == "comments"){
+					e.Cancel = true;
+				}
+			};
 		}
 
 		void UpdateFoldingOffsets()
@@ -161,8 +167,10 @@ namespace SequenceEditor
 			if (isEditorVisible) {
 				DataTable tbl = file.UpdateDataTable();
 				dataGrid.ItemsSource = tbl.AsDataView();
+				
 				pnlMain.Children.Remove(textEditor);
-				pnlMain.Children.Add(dataGrid);
+				pnlMain.Children.Add(dataGrid);				
+				
 			} else {
 				file.ConvertToFlatFromTable();
 				UpdateText();

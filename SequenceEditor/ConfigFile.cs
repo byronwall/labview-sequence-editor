@@ -93,7 +93,7 @@ namespace SequenceEditor
 				Background = new CustomizedBrush(backGround)
 			};
 			
-			String[] wordList = labels.ToArray(); // Your own logic
+			String[] wordList = labels.OrderByDescending(c=>c.Length).ToArray(); // Your own logic
 			String regex = String.Format(@"\b({0})\w*\b", String.Join("|", wordList));
 			_HighlightingRule.Regex = new Regex(regex);
 		}
@@ -160,6 +160,7 @@ namespace SequenceEditor
 			
 			dataTable = new DataTable();			
 			dataTable.Columns.Add(new DataColumn("name"));
+			dataTable.Columns.Add(new DataColumn("comments"));
 			
 			//process the first section to get the keys/columns
 			foreach (var line in sections[0]) {
@@ -190,10 +191,14 @@ namespace SequenceEditor
 					} else {
 						//determine the column and add apporpriately
 						Match m = lineSplitter.Match(line);
-						var colName = m.Groups["key"].Value;
-						var value = m.Groups["value"].Value;
+						if (m.Success) {
+							var colName = m.Groups["key"].Value;
+							var value = m.Groups["value"].Value;
 						
-						dataRow[colName] = value;
+							dataRow[colName] = value;
+						}else{
+							dataRow["comments"] = dataRow["comments"] + line + "\r\n";
+						}
 					}
 				
 					isHeader = false;
@@ -218,13 +223,18 @@ namespace SequenceEditor
 				
 				//process each column into a line in the file
 				foreach (DataColumn column in dataTable.Columns) {
-					if (column.ColumnName == "name") {
+					if (column.ColumnName == "name" || column.ColumnName == "comments") {
 						continue;
 					}
 					
 					//the Trim is to remove trailing whitespace on empty entries
 					var newLine = string.Format("{0} = {1}", column.ColumnName, row[column.ColumnName]);					
 					flatFileBuilder.AppendLine(newLine.Trim());
+				}
+				
+				//check if there were any comments
+				if (row["comments"] != String.Empty) {
+					flatFileBuilder.AppendLine(row["comments"].ToString());
 				}
 
 				//blank line at the end

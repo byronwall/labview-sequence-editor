@@ -70,11 +70,13 @@ namespace SequenceEditor
 							if (document.GetCharAt(j - 1) == '\r') {
 								j -= 1;
 							}
+							
 							newFoldings.Add(new NewFolding(startOffset.Value, j));
+							
 							startOffset = null;
 							break;
 						}
-						j-=1;
+						j -= 1;
 					}
 				}
 			}
