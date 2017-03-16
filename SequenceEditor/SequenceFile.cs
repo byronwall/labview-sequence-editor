@@ -122,7 +122,7 @@ namespace SequenceEditor
 			int commentCount = 0;
 			for (int lineNum = 0; lineNum < currentSection.Count; lineNum++) {
 				var originalLine = currentSection[lineNum];
-				if (originalLine.StartsWith(";")) {
+				if (originalLine.StartsWith(";") || originalLine == "") {
 					commentCount++;
 				}
 				string newline = originalLine;
@@ -136,7 +136,7 @@ namespace SequenceEditor
 			commentCount = 0;
 			for (int i = 0; i < newLines.Count; i++) {
 				var newline = newLines[i];
-				if (newline.StartsWith(";")) {
+				if (newline.StartsWith(";") || newline == "") {
 					commentCount++;
 				}
 				
